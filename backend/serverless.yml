@@ -18,6 +18,8 @@ provider:
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     TODOS_S3_BUCKET: nhanduong899-todos-images-project-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+  httpApi:
+    cors: true
 
 functions:
   Auth:
@@ -29,7 +31,15 @@ functions:
       - http:
           method: get
           path: todos
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
@@ -136,9 +146,20 @@ resources:
       Properties:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PATCH,DELETE,PUT'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST,PUT,PATCH,DELETE'"
         ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+    GatewayResponseDefault5XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'OPTIONS,GET,POST,PUT,PATCH,DELETE'"
+        ResponseType: DEFAULT_5XX
         RestApiId:
           Ref: ApiGatewayRestApi
 
@@ -184,11 +205,13 @@ resources:
                 - '*'
               AllowedMethods:
                 - GET
+                - PUT
                 - POST
                 - DELETE
                 - HEAD
-                - PUT
               MaxAge: 3000
+              ExposedHeaders:
+                - ETag
 
     BucketPolicy:
       Type: AWS::S3::BucketPolicy

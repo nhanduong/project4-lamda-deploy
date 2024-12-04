@@ -3,7 +3,7 @@ import { JwksClient } from 'jwks-rsa'
 import { createLogger } from '../../utils/logger.mjs'
 
 const logger = createLogger('auth')
-const jwksUrl = 'https://dev-d1edgpzrydjvjwin.us.auth0.com/.well-known/jwks.json'
+const jwksUrl = 'https://dev-yf4ioeo0r63lio48.us.auth0.com/.well-known/jwks.json'
 const jwks = new JwksClient({ jwksUri: jwksUrl })
 
 export async function handler(event) {
