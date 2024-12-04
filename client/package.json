@@ -39,5 +39,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "https://dsvc9iafyd.execute-api.us-east-1.amazonaws.com"
 }
